@@ -76,7 +76,7 @@ private class ParquetPartitioningFlow[T, W](
                                              maxCount: Long,
                                              maxDuration: FiniteDuration,
                                              preWriteTransformation: T => W,
-                                             partitionBy: Seq[W => String],
+                                             partitionBy: Seq[W => (String, String)],
                                              encode: (W, ValueCodecConfiguration) => RowParquetRecord,
                                              schema: MessageType,
                                              writeOptions: ParquetWriter.Options
@@ -97,7 +97,9 @@ private class ParquetPartitioningFlow[T, W](
     setHandlers(in, out, this)
 
     private def partitionPath(obj: W): Path = partitionBy.foldLeft(basePath) {
-      case (path, partitionBy) => new Path(path, partitionBy(obj))
+      case (path, partitionBy) =>
+        val (key, value) = partitionBy(obj)
+        new Path(path, s"$key=$value")
     }
 
     // TODO add compression codec to default path name

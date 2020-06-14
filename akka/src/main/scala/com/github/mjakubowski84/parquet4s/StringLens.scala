@@ -68,14 +68,14 @@ private[parquet4s] object StringLens {
       Left(LensError(cursor, "Only String field can be used for partitioning."))
   }
 
-  def apply[T](obj: T, path: String)(implicit lens: StringLens[T]): String = {
+  def apply[T](obj: T, path: String)(implicit lens: StringLens[T]): (String, String) = {
 
     lens.apply(Cursor.following(path), obj) match {
       case Left(LensError(cursor, message)) =>
         val cursorPath = cursor.path.mkString(".")
         throw new IllegalArgumentException(s"Invalid element at path '$cursorPath'. $message")
       case Right(result) =>
-        result
+        (path, result)
     }
 
   }

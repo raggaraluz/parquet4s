@@ -260,17 +260,28 @@ class ParquetStreamsITSpec
     }
   }
 
-  it should "write partitioned data" in {
-    val flow = ParquetStreams.viaParquet[Data](tempPathString)
+  it should "write and read partitioned data" in {
+
+    case class User(name: String, address: Address)
+    case class Address(street: Street, country: String, postCode: String)
+    case class Street(name: String, more: String)
+
+    val flow = ParquetStreams.viaParquet[User](tempPathString)
       .withMaxCount(writeOptions.rowGroupSize)
       .withMaxDuration(100.millis)
-      .withPartitionBy("s")
+      .withPartitionBy("address.country", "address.postCode")
       .build()
 
+    val users = Seq(
+      User(name = "John", address = Address(street = Street("Broad St", "12"), country = "PL", postCode = "123456"))
+    ).toStream
+
     for {
-      writtenData <- Source(data).via(flow).runWith(Sink.seq)
+      writtenData <- Source(users).via(flow).runWith(Sink.seq)
+      readData <- ParquetStreams.fromParquet[User](tempPathString).runWith(Sink.seq)
     } yield {
-      writtenData should be(data)
+      writtenData should be(users)
+      readData should be(users)
     }
   }
 

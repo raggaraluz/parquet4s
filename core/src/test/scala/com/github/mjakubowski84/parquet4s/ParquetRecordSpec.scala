@@ -1,8 +1,9 @@
 package com.github.mjakubowski84.parquet4s
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class ParquetRecordSpec extends FlatSpec with Matchers {
+class ParquetRecordSpec extends AnyFlatSpec with Matchers {
 
   private val vcc = ValueCodecConfiguration.default
 

@@ -16,7 +16,7 @@ trait Cursor {
 
 object Cursor {
 
-  type Path = Seq[String]
+  type Path = List[String]
   object Path {
     val empty: Path = List.empty
     def apply(str: String): Path = str.split("\\.").toList
